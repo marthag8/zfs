@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/wix/zfs.png)](http://travis-ci.org/wix/zfs)
+[![Build Status](https://secure.travis-ci.org/marthag8/zfs.png)](http://travis-ci.org/marthag8/zfs)
 
 Description
 ===========
