@@ -13,7 +13,7 @@ end
 action :create do
   unless created?
     Chef::Log.info("Creating zfs #{@zfs.name}")
-    system("zfs create #{@zfs.name}")
+    shell_out!("zfs create #{@zfs.name}")
 
     # update properties for new zfs
     @zfs.info(info?)
@@ -25,7 +25,7 @@ action :create do
   @managed_props.each do |prop|
     unless @zfs.current_props[prop] == @zfs.desired_props[prop]
       Chef::Log.info("Setting #{prop} to #{@zfs.desired_props[prop]} for zfs #{@zfs.name}")
-      system("zfs set #{prop}=#{@zfs.desired_props[prop]} #{@zfs.name}")
+      shell_out!("zfs set #{prop}=#{@zfs.desired_props[prop]} #{@zfs.name}")
       new_resource.updated_by_last_action(true)
     end
   end
@@ -34,7 +34,7 @@ end
 action :destroy do
   if created?
     Chef::Log.info("Destroying zfs #{@zfs.name}")
-    system("zfs destroy #{@zfs.name}")
+    shell_out!("zfs destroy #{@zfs.name}")
     new_resource.updated_by_last_action(true)
   end
 end
