@@ -1,34 +1,28 @@
-#!/usr/bin/env rake
+# -*- mode: ruby -*-
 
-task :default => 'foodcritic'
+require 'bundler/setup'
+require 'rubocop/rake_task'
+require 'foodcritic'
 
-desc "Runs foodcritic linter"
-task :foodcritic do
-  Rake::Task[:prepare_sandbox].execute
+# Style tests. Rubocop and Foodcritic
+namespace :style do
+  desc 'Run Ruby style checks'
+  RuboCop::RakeTask.new(:ruby)
 
-  if Gem::Version.new("1.9.2") <= Gem::Version.new(RUBY_VERSION.dup)
-    sh "foodcritic -f any #{sandbox_path}"
-  else
-    puts "WARN: foodcritic run is skipped as Ruby #{RUBY_VERSION} is < 1.9.2."
+  desc 'Run Chef style checks'
+  FoodCritic::Rake::LintTask.new(:chef) do |t|
+    t.options = {
+      fail_tags: ['any'],
+    }
   end
 end
 
-desc "Runs knife cookbook test"
+desc 'Run all style checks'
+task style: ['style:chef', 'style:ruby']
+
+desc 'Runs knife cookbook test'
 task :knife do
-  Rake::Task[:prepare_sandbox].execute
-
-  sh "bundle exec knife cookbook test zfs -o #{sandbox_path}/../"
+  sh 'bundle exec knife cookbook test thruk -o ../'
 end
 
-task :prepare_sandbox do
-  files = %w{*.md *.rb attributes definitions libraries files providers recipes resources templates}
-
-  rm_rf sandbox_path
-  mkdir_p sandbox_path
-  cp_r Dir.glob("{#{files.join(',')}}"), sandbox_path
-end
-
-private
-def sandbox_path
-  File.join(File.dirname(__FILE__), %w(tmp cookbooks cookbook))
-end
+task default: [:style, :knife]

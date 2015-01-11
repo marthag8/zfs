@@ -1,0 +1,9 @@
+
+LineLength:
+  Max: 999
+
+TrailingComma:
+  EnforcedStyleForMultiline: comma
+
+SingleSpaceBeforeFirstArg:
+  Enabled: false
