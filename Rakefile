@@ -22,7 +22,7 @@ task style: ['style:chef', 'style:ruby']
 
 desc 'Runs knife cookbook test'
 task :knife do
-  sh 'bundle exec knife cookbook test thruk -o ../'
+  sh 'bundle exec knife cookbook test zfs -o ../'
 end
 
 task default: [:style, :knife]
