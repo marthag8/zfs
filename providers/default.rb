@@ -3,7 +3,7 @@ include Chef::Mixin::ShellOut
 def load_current_resource
   @zfs = Chef::Resource::Zfs.new(new_resource.name)
   @zfs.name(new_resource.name)
-  @managed_props = %w(mountpoint zoned recordsize atime)
+  @managed_props = %w(mountpoint zoned recordsize atime compression)
 
   @zfs.info(info?)
   @zfs.current_props(current_props?)
