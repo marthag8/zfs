@@ -1,3 +1,5 @@
+MethodLength:
+  Max: 20
 
 LineLength:
   Max: 999
