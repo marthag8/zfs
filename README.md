@@ -15,11 +15,17 @@ Zpool should be already created, either manually or with the zpool LWRP.
 Attributes
 ==========
 
-    mountpoint  - defaults to /name
-    zoned       - "on", "off" - defaults to "off"
-    atime       - "on, "off", - defaults to "on"
-    recordsize  - defaults to "128K"
-    compression - "on", "off", "lzjb", "gzip", "gzip-1", "gzip-2", "gzip-3", "gzip-4", "gzip-5", "gzip-6", "gzip-7", "gzip-8", "gzip-9", "lz4" - defaults to "off"
+    mountpoint     - defaults to /name
+    zoned          - "on", "off" - defaults to "off"
+    atime          - "on, "off", - defaults to "on"
+    recordsize     - defaults to "128K"
+    compression    - "on", "off", "lzjb", "gzip", "gzip-1", "gzip-2", "gzip-3", "gzip-4", "gzip-5", "gzip-6", "gzip-7", "gzip-8", "gzip-9", "lz4" - defaults to "off"
+    quota          - size in B,KB,MB,GB,TB - defaults to "none"
+    refquota       - size in B,KB,MB,GB,TB - defaults to "none"
+    reservation    - size in B,KB,MB,GB,TB - defaults to "none"
+    refreservation - size in B,KB,MB,GB,TB - defaults to "none"
+    dedup          - "on", "off" - defaults to "off"
+
  
 Usage
 =====
