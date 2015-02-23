@@ -3,7 +3,13 @@ include Chef::Mixin::ShellOut
 def load_current_resource
   @zfs = Chef::Resource::Zfs.new(new_resource.name)
   @zfs.name(new_resource.name)
-  @managed_props = %w(mountpoint zoned recordsize atime compression)
+  case node['platform']
+   #freebsd's zfs doesn't support the 'zone' functionality
+   when 'freebsd'
+    @managed_props = %w(mountpoint recordsize atime compression)
+   else
+    @managed_props = %w(mountpoint zoned recordsize atime compression)
+  end
 
   @zfs.info(info?)
   @zfs.current_props(current_props?)
