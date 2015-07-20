@@ -6,9 +6,9 @@ def load_current_resource
   case node['platform']
     # freebsd's zfs doesn't support the 'zone' functionality
   when 'freebsd'
-    @managed_props = %w(mountpoint recordsize atime compression quota refquota reservation refreservation dedup)
+    @managed_props = %w(mountpoint recordsize atime compression quota refquota reservation refreservation dedup primarycache secondarycache)
   else
-    @managed_props = %w(mountpoint zoned recordsize atime compression quota refquota reservation refreservation dedup)
+    @managed_props = %w(mountpoint zoned recordsize atime compression quota refquota reservation refreservation dedup primarycache secondarycache)
   end
 
   @zfs.info(info?)
