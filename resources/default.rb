@@ -11,6 +11,8 @@ attribute :refquota, kind_of: String, default: 'none'
 attribute :reservation, kind_of: String, default: 'none'
 attribute :refreservation, kind_of: String, default: 'none'
 attribute :dedup, kind_of: String, equal_to: %w(on off), default: 'off'
+attribute :primarycache, kind_of: String, equal_to: %w(all none metadata), default: 'all'
+attribute :secondarycache, kind_of: String, equal_to: %w(all none metadata), default: 'all'
 
 attribute :info, kind_of: Mixlib::ShellOut, default: nil
 attribute :current_props, kind_of: Hash, default: nil
