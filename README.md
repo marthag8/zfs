@@ -3,7 +3,7 @@
 Description
 ===========
 
-Lightweight resource and provider to manage Solaris zfs file systems. 
+Lightweight resource and provider to manage Solaris zfs file systems.
 Currently, only a limited sub-set of options are supported.
 
 Requirements
@@ -25,8 +25,8 @@ Attributes
     reservation    - size in B,KB,MB,GB,TB - defaults to "none"
     refreservation - size in B,KB,MB,GB,TB - defaults to "none"
     dedup          - "on", "off" - defaults to "off"
+    logbias        - "latency", "throughput" - defaults to "latency"
 
- 
 Usage
 =====
 
@@ -34,7 +34,7 @@ Usage
       action :create
       mountpoint "/opt/test"
     end
-  
+
     zfs "test/test2" do
       zoned "on"
       atime "off"
@@ -42,7 +42,7 @@ Usage
       mountpoint "none"
       compression "lz4"
     end
-  
+
     zfs "test/test3" do
       action :destroy
     end
