@@ -1,3 +1,5 @@
 /test/support/Gemfile.lock
 /tmp
 *.lock
+.bundle
+
