@@ -1,0 +1,23 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+  product: chef-client
+  channel: stable
+  version: 12.21.12
+
+platforms:
+  - name: ubuntu-16.04
+  - name: freebsd-10.4
+  - name: freebsd-11.1
+  - name: solaris-11
+    driver:
+      box: chef/solaris-11.3
+
+suites:
+  - name: default
+    run_list:
+      - recipe[zfs_test::default]
+    attributes:

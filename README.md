@@ -3,46 +3,73 @@
 Description
 ===========
 
-Lightweight resource and provider to manage Solaris zfs file systems. 
-Currently, only a limited sub-set of options are supported.
+Manage ZFS filesystems.
 
 Requirements
 ============
 
-Solaris, zfs.
-Zpool should be already created, either manually or with the zpool LWRP.
+A valid zpool. This can be managed with the zpool cookbook.
 
-Attributes
+Properties
 ==========
 
-    mountpoint     - defaults to /name
-    zoned          - "on", "off" - defaults to "off"
-    atime          - "on, "off", - defaults to "on"
-    recordsize     - defaults to "128K"
-    compression    - "on", "off", "lzjb", "gzip", "gzip-1", "gzip-2", "gzip-3", "gzip-4", "gzip-5", "gzip-6", "gzip-7", "gzip-8", "gzip-9", "lz4" - defaults to "off"
-    quota          - size in B,KB,MB,GB,TB - defaults to "none"
-    refquota       - size in B,KB,MB,GB,TB - defaults to "none"
-    reservation    - size in B,KB,MB,GB,TB - defaults to "none"
-    refreservation - size in B,KB,MB,GB,TB - defaults to "none"
-    dedup          - "on", "off" - defaults to "off"
+ - `properties`: ZFS properties are set as an Hrray of Hashes to configure the filesystems using the single `properties` attribute.
 
- 
+
 Usage
 =====
 
-    zfs "zones/test" do
-      action :create
-      mountpoint "/opt/test"
-    end
-  
-    zfs "test/test2" do
-      zoned "on"
-      atime "off"
-      recordsize "16K"
-      mountpoint "none"
-      compression "lz4"
-    end
-  
-    zfs "test/test3" do
-      action :destroy
-    end
+### Creating a ZFS Filesytem
+```ruby
+zfs "tank/test" do
+  properties [
+    { mountpoint: '/opt/test' },
+    { relatime: 'on' },
+    { compression: 'lz4' }
+  ]
+  action :create
+end
+```
+
+### Upgrading a ZFS to the latest filesystem version:
+
+```ruby
+zfs "tank/test" do
+  action :upgrade
+end
+```
+
+```ruby
+zfs "tank/test" do
+  properties [
+    { mountpoint: '/opt/test' },
+    { relatime: 'on' },
+    { compression: 'lz4' }
+  ]
+  action [:create, :upgrade]
+end
+```
+
+### Destroying a ZFS Filesystem
+
+```ruby
+zfs "tank/test" do
+  action :destroy
+end
+```
+
+:sparkles: Note that destroy flags are not directly supported. However, some like the `-d` flag can be used by setting the `defer_destroy` property on the filesystem prior to desctruction. See the example below.
+
+```ruby
+filesystem = zfs "tank/test" do
+  properties [
+    { defer_destroy: 'on' }
+  ]
+  action :create
+  only_if "zfs list | grep -q #{self.name}"
+end
+
+zfs filesystem.name do
+  action :destroy
+end
+```
