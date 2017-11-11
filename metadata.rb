@@ -1,11 +1,15 @@
-name             'zfs'
-maintainer       'Martha Greenberg'
-maintainer_email 'marthag@mit.edu'
-license          'Apache 2.0'
-description      'Manages Solaris zfs'
+name             'chef_zfs'
+maintainer       'Chef Software Inc.'
+maintainer_email 'cookbooks@chef.io'
+license          'Apache-2.0'
+description      'Manage ZFS'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.0.6'
+version          '1.0.0'
+source_url       'https://github.com/chef-cookbooks/chef_zfs'
+issues_url       'https://github.com/chef-cookbooks/chef_zfs/issues'
 
 %w(solaris2 ubuntu freebsd).each do |os|
   supports os
 end
+
+chef_version '>= 12.11'
