@@ -32,11 +32,11 @@ A resource for managing ZFS filesystems. This cookbook is forked from the origin
 
 #### Properties
 
-- `properties`: ZFS properties are set as an Hrray of Hashes to configure the filesystems using the single `properties` attribute.
+- `properties`: ZFS properties are set as an Array of Hashes to configure the filesystems using the single `properties` attribute.
 
 #### Examples
 
-##### Creating a ZFS Filesytem
+##### Creating a ZFS Filesystem
 
 ```ruby
 zfs "tank/test" do
@@ -76,7 +76,7 @@ zfs "tank/test" do
 end
 ```
 
-:sparkles: Note that destroy flags are not directly supported. However, some like the `-d` flag can be used by setting the `defer_destroy` property on the filesystem prior to desctruction. See the example below.
+:sparkles: Note that destroy flags are not directly supported. However, some like the `-d` flag can be used by setting the `defer_destroy` property on the filesystem prior to destruction. See the example below.
 
 ```ruby
 filesystem = zfs "tank/test" do
