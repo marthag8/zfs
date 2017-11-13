@@ -31,11 +31,11 @@ action :create do
     zfs_set_properties(name, new_resource.properties) unless new_resource.properties.nil?
   else
     cmd = %w(zfs create)
-    properties.each do |setting|
+    new_resource.properties.each do |setting|
       key = setting.keys.first
       cmd << '-o'
       cmd << "#{key}=#{setting[key]}"
-    end unless properties.nil?
+    end unless new_resource.properties.nil?
     cmd << new_resource.name
 
     execute 'zfs_create' do
