@@ -1,25 +1,43 @@
-[![Build Status](https://secure.travis-ci.org/marthag8/zfs.png)](http://travis-ci.org/marthag8/zfs)
+# chef_zpool Cookbook
 
-Description
-===========
+[![Build Status](https://travis-ci.org/chef-cookbooks/chef_zfs.svg?branch=master)](https://travis-ci.org/chef-cookbooks/chef_zfs) [![Cookbook Version](https://img.shields.io/cookbook/v/chef_zfs.svg)](https://supermarket.chef.io/cookbooks/chef_zfs)
 
-Manage ZFS filesystems.
+A resource for managing ZFS filesystems. This cookbook is forked from the original zfs cookbook by Martha Greenberg at <https://github.com/marthag8/zfs>.
 
-Requirements
-============
+## Requirements
 
-A valid zpool. This can be managed with the zpool cookbook.
+### Platforms
 
-Properties
-==========
+- Ubuntu
+- FreeBSD
+- Solaris
 
- - `properties`: ZFS properties are set as an Hrray of Hashes to configure the filesystems using the single `properties` attribute.
+### Chef
 
+- Chef 12.7+
 
-Usage
-=====
+### Cookbooks
 
-### Creating a ZFS Filesytem
+- none
+
+## Resources
+
+### zfs
+
+#### Actions
+
+- `:create`
+- `:upgrade`
+- `:destroy`
+
+#### Properties
+
+- `properties`: ZFS properties are set as an Hrray of Hashes to configure the filesystems using the single `properties` attribute.
+
+#### Examples
+
+##### Creating a ZFS Filesytem
+
 ```ruby
 zfs "tank/test" do
   properties [
@@ -31,7 +49,7 @@ zfs "tank/test" do
 end
 ```
 
-### Upgrading a ZFS to the latest filesystem version:
+##### Upgrading a ZFS to the latest filesystem version:
 
 ```ruby
 zfs "tank/test" do
@@ -50,7 +68,7 @@ zfs "tank/test" do
 end
 ```
 
-### Destroying a ZFS Filesystem
+##### Destroying a ZFS Filesystem
 
 ```ruby
 zfs "tank/test" do
@@ -72,4 +90,26 @@ end
 zfs filesystem.name do
   action :destroy
 end
+```
+
+## Maintainers
+
+This cookbook is maintained by Chef's Community Cookbook Engineering team. Our goal is to improve cookbook quality and to aid the community in contributing to cookbooks. To learn more about our team, process, and design goals see our [team documentation](https://github.com/chef-cookbooks/community_cookbook_documentation/blob/master/COOKBOOK_TEAM.MD). To learn more about contributing to cookbooks like this see our [contributing documentation](https://github.com/chef-cookbooks/community_cookbook_documentation/blob/master/CONTRIBUTING.MD), or if you have general questions about this cookbook come chat with us in #cookbok-engineering on the [Chef Community Slack](http://community-slack.chef.io/)
+
+## License
+
+**Copyright:** 2012-2017, Martha Greenberg **Copyright:** 2017, Chef Software, Inc.
+
+```
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 ```

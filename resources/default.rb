@@ -1,8 +1,7 @@
 # -*- encoding: utf-8 -*-
 #
-# Author:: Ryan Hass (<ryan@invalidchecksum.net>)
+# Author:: Ryan Hass (<rhass@chef.io>)
 # Author:: Martha Greenberg (<marthag@mit.edu>)
-#
 # Copyright (C) 2017, Chef Software Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'mixlib/shellout'
-
-provides :zfs
+resource_name :zfs
 property :properties, Array
 
 load_current_value do
@@ -32,11 +29,11 @@ action :create do
     zfs_set_properties(name, new_resource.properties) unless new_resource.properties.nil?
   else
     cmd = %w(zfs create)
-    properties.each do |setting|
+    new_resource.properties.each do |setting|
       key = setting.keys.first
       cmd << '-o'
       cmd << "#{key}=#{setting[key]}"
-    end unless properties.nil?
+    end unless new_resource.properties.nil?
     cmd << new_resource.name
 
     execute 'zfs_create' do
