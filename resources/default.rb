@@ -16,9 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'mixlib/shellout'
-
-provides :zfs
+resource_name :zfs
 property :properties, Array
 
 load_current_value do
