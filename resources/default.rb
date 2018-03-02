@@ -26,7 +26,7 @@ end
 
 action :create do
   if current_resource
-    zfs_set_properties(name, new_resource.properties) unless new_resource.properties.nil?
+    zfs_set_properties(new_resource.name, new_resource.properties) unless new_resource.properties.nil?
   else
     cmd = %w(zfs create)
     new_resource.properties.each do |setting|
@@ -46,14 +46,14 @@ end
 action :destroy do
   execute 'zfs_destroy' do
     environment 'PATH' => "/usr/sbin:#{ENV['PATH']}" if platform_family?('solaris2')
-    command "zfs destroy #{name}"
+    command "zfs destroy #{new_resource.name}"
   end
 end
 
 action :upgrade do
   execute 'zfs_upgrade' do
     environment 'PATH' => "/usr/sbin:#{ENV['PATH']}" if platform_family?('solaris2')
-    command "zfs upgrade #{name}"
+    command "zfs upgrade #{new_resource.name}"
   end
 end
 
