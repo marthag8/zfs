@@ -1,23 +1,150 @@
-actions :create, :destroy
+# -*- encoding: utf-8 -*-
+#
+# Author:: Ryan Hass (<rhass@chef.io>)
+# Author:: Martha Greenberg (<marthag@mit.edu>)
+# Copyright (C) 2017, Chef Software Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-attribute :name, kind_of: String
-attribute :mountpoint, kind_of: String, default: nil
-attribute :zoned, kind_of: String, equal_to: %w(on off),  default: 'off'
-attribute :recordsize, kind_of: String, default: '128K'
-attribute :atime, kind_of: String, equal_to: %w(on off), default: 'on'
-attribute :compression, kind_of: String, equal_to: ['on', 'off', 'lzjb', 'gzip', 'gzip-1', 'gzip-2', 'gzip-3', 'gzip-4', 'gzip-5', 'gzip-6', 'gzip-7', 'gzip-8', 'gzip-9', 'lz4'], default: 'off'
-attribute :quota, kind_of: String, default: 'none'
-attribute :refquota, kind_of: String, default: 'none'
-attribute :reservation, kind_of: String, default: 'none'
-attribute :refreservation, kind_of: String, default: 'none'
-attribute :dedup, kind_of: String, equal_to: %w(on off), default: 'off'
+resource_name :zfs
+property :properties, Array
 
-attribute :info, kind_of: Mixlib::ShellOut, default: nil
-attribute :current_props, kind_of: Hash, default: nil
-attribute :desired_props, kind_of: Hash, default: nil
+load_current_value do
+  current_value_does_not_exist! unless zfs_exist?(name)
+  properties zfs_properties(name)
+end
 
-def initialize(*args)
-  super
-  @action = :create
-  @mountpoint ||= '/' + name
+action :create do
+  if current_resource
+    zfs_set_properties(new_resource.name, new_resource.properties) unless new_resource.properties.nil?
+  else
+    cmd = %w(zfs create)
+    new_resource.properties.each do |setting|
+      key = setting.keys.first
+      cmd << '-o'
+      cmd << "#{key}=#{setting[key]}"
+    end unless new_resource.properties.nil?
+    cmd << new_resource.name
+
+    execute 'zfs_create' do
+      environment 'PATH' => "/usr/sbin:#{ENV['PATH']}" if platform_family?('solaris2')
+      command cmd
+    end
+  end
+end
+
+action :destroy do
+  execute 'zfs_destroy' do
+    environment 'PATH' => "/usr/sbin:#{ENV['PATH']}" if platform_family?('solaris2')
+    command "zfs destroy #{new_resource.name}"
+  end
+end
+
+action :upgrade do
+  execute 'zfs_upgrade' do
+    environment 'PATH' => "/usr/sbin:#{ENV['PATH']}" if platform_family?('solaris2')
+    command "zfs upgrade #{new_resource.name}"
+  end
+end
+
+PROPERTIES_VALID_ONLY_AT_CREATE = [
+  :casesensitivity,
+  :normalization,
+  :utf8only,
+  :volblocksize,
+].freeze
+
+# Method to coalesce the zfs get command output against the parser method.
+def zfs_properties(name)
+  properties || parse_zfs_properties(zfs_get_properties(name))
+end
+
+# private
+
+# Helper method to check if a filesystem exists.
+# @parm [String] ZFS Name
+# @return [Boolean]
+def zfs_exist?(name)
+  cmd = Mixlib::ShellOut.new('zfs', 'get', 'mountpoint', name)
+  cmd.environment['PATH'] = "/usr/sbin:#{ENV['PATH']}" if platform_family?('solaris2')
+  cmd.run_command
+  cmd.exitstatus == 0 ? true : false
+end
+
+def zfs_get_properties(name)
+  cmd = Mixlib::ShellOut.new('zfs', 'get', 'all', name)
+  cmd.environment['PATH'] = "/usr/sbin:#{ENV['PATH']}" if platform_family?('solaris2')
+  cmd.run_command
+  cmd.error!
+  cmd.stdout
+end
+
+# Helper method to check if a filesystem property is already set
+# so that we don't call zfs set when it's unnecessary.
+# @param [String] ZFS Name
+# @param [Hash] ZFS Property => value
+# @return [Boolean]
+def zfs_property_already_set?(fs, property)
+    key = property.keys[0] 
+    new_value = property[property.keys[0]]
+    cmd = Mixlib::ShellOut.new('zfs', 'get', key.to_s, fs)
+    cmd.run_command
+    existing_property = parse_zfs_properties(cmd.stdout)[0]
+    existing_value = existing_property[existing_property.keys[0]]
+    existing_value == new_value
+end
+
+# TODO: Add support for setting inheritance from parent filesystems.
+# @param [String] ZFS Name
+# @param [Hash] ZFS Property => value
+def zfs_set_properties(fs, properties)
+  # There are a handlful of properties which can only be set when the
+  # filesystem is created. We do not try to set these values since we
+  # cannot change these settings.
+  configurable_properties = properties.reject do |setting|
+    PROPERTIES_VALID_ONLY_AT_CREATE.include?(setting.keys.first)
+  end
+
+  configurable_properties.each do |setting|
+    next if PROPERTIES_VALID_ONLY_AT_CREATE.include?(setting.keys[0])
+    next if zfs_property_already_set?(fs, setting) 
+    cmd = Mixlib::ShellOut.new('zfs', 'set', "#{setting.keys[0]}=#{setting[setting.keys[0]]}", fs)
+    cmd.environment['PATH'] = "/usr/sbin:#{ENV['PATH']}" if platform_family?('solaris2')
+    cmd.run_command
+    cmd.error!
+  end
+end
+
+#
+# @param [String] output of `zfs get all <filesystem>`
+# @return [Array] Hash of propetry value and the source of the ZFS values.
+# @example Parse zfs get all command output
+#   parse_zfs_properties <<EOF
+#   NAME                          PROPERTY              VALUE                              SOURCE
+#   tank                          type                  filesystem                         -
+#   tank/myfs                     atime                 off                                inherited from tank
+#   tank/myfs                     checksum              on                                 default
+#   tank/myfs                     dedup                 off                                local
+#   EOF
+#   #=> [ {:atime=>"off", :source=>"tank"},
+#    {:checksum=>"on", :source=>"default"},
+#    {:dedup=>"off", :source=>"local"}]
+def parse_zfs_properties(props)
+  properties_array = props.split(/\n/).drop(1).select { |p| p if p.split.last != '-' }.map(&:split)
+  properties_array.map do |property|
+    {
+      property[1].to_sym => property[2],
+      source: property[3] == 'inherited' ? property[5] : property[3],
+    }
+  end
 end

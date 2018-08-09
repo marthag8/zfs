@@ -1,0 +1,23 @@
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+  deprecations_as_errors: true
+  log_level: :warn
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: freebsd-10
+  - name: freebsd-11
+  - name: solaris-11
+    driver:
+      box: chef/solaris-11.3
+  - name: ubuntu-16.04
+
+suites:
+  - name: default
+    run_list:
+      - recipe[test::default]
